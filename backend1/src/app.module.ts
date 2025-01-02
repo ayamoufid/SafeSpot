@@ -4,6 +4,8 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthentModule } from './authent/authent.module';
 import { UserModule } from './user/user.module';
+import { LocalisationModule } from './localisation/localisation.module';
+import { SignalementModule } from './signalement/signalement.module';
 
 @Module({
   imports: [
@@ -19,6 +21,8 @@ import { UserModule } from './user/user.module';
     }),
     UserModule,
     AuthentModule,
+    LocalisationModule,
+    SignalementModule,
   ],
 
   controllers: [AppController],

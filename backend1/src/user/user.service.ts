@@ -55,4 +55,9 @@ export class UserService
   {
     return this.userRepository.findOne({ where: { username } });
   }
+
+  async findUserById(id: number): Promise<User | undefined> 
+  {
+    return this.userRepository.findOne({ where: { id } });
+  }
 }
