@@ -1,4 +1,5 @@
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
+import { Localisation } from '../localisation/localisation.entity';
 
 @Entity()
 export class User {
@@ -20,17 +21,9 @@ export class User {
   @Column({ unique: true })
   email: string;
 
-  @Column()
+  @Column({ unique: true })
   numeroTelephone: string;
 
-
-  constructor(id: number, username: string, password: string, nom: string, prenom: string, mail: string, tel: string) {
-    this.id = id;
-    this.username = username;
-    this.password = password;
-    this.nom = nom;
-    this.prenom = prenom;
-    this.email = mail;
-    this.numeroTelephone = tel;
-  }
+  @OneToMany(() => Localisation, (localisation) => localisation.user)
+  localisations: Localisation[];
 }
