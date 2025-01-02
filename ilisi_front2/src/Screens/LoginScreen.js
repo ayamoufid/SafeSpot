@@ -1,76 +1,100 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, TextInput, Button, Alert } from 'react-native';
-import Header from '../Components/Header';
-import React from "react";
-//import axios from "axios";
+import React, { useState,useEffect } from 'react';
+
+
+import { View, Text, TextInput, TouchableOpacity, Alert } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import Icon from 'react-native-vector-icons/Feather';
+import config from '../config'; // Make sure this path is correct
 import styles from '../Components/Styles';
-import config from '../config';
 
-export default class LoginScreen extends React.Component {
+import { useDispatch,useSelector } from 'react-redux'; // Importer useDispatch
+import { login } from '../Redux/Actions/authActions'; // Importer l'action login
 
-  constructor(props) {
-    super(props);
-    // Initialisation de l'état local
-    this.state = {
-        username: '',
-        password: '',
-    };
-}
 
-handleLogin = async () => {
-  const { username, password } = this.state;
 
-  if (!username || !password) {
-    Alert.alert('Error', 'Please fill all fields');
-    return;
+export default function LoginScreen() {
+  const navigation = useNavigation();
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  //////
+  const dispatch = useDispatch();
+  const { isLoading, isLoggedIn, error } = useSelector((state) => state.auth);
+  useEffect(() => {
+  if (isLoggedIn) {
+  navigation.navigate('Map');
   }
+  }, [isLoggedIn, navigation]); // Ajoutez la dépendance à 'isLoggedIn'
+  /////
 
-  try {
-    const response = await fetch(config.API_URL+':'+config.port+'/authent/login', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ username, password }),
-    });
 
-    if (response.ok) {
-      Alert.alert('Success', 'User log in successfully');
-      this.props.navigation.navigate('Map');
-    } else {
-      const errorData = await response.json();
-      Alert.alert('Error', errorData.message || 'Failed to log in user');
+  const handleLogin = async () => {
+    
+    if (!username || !password) {
+      Alert.alert('Error', 'Please fill all fields');
+      return;
     }
-  } catch (error) {
-    Alert.alert('Error', 'Network error');
-  }
-};
+    
+    try {
+      const response = await fetch('http://192.168.0.104:3000/authent/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ username, password }),
+      });
 
+      if (response.ok) {
+        //dispatch(login()); // Déclencher l'action login dans Redux
+        dispatch(login(username, password));
+        Alert.alert('Success', 'User logged in successfully');
+        navigation.navigate('Map');
+      } else {
+        const errorData = await response.json();
+        Alert.alert('Error', errorData.message || 'Failed to log in user');
+      }
+    } catch (error) {
+      Alert.alert('Error', 'Network error');
+    }
+  };
 
-  render() {
-  const { username, password } = this.state;
   return (
-    <View style={styles.mainContainer}>
-      <View style={styles.formContainer}>
-        {/* Username Input */}
-        <TextInput
-          style={styles.input}
-          placeholder="Username"
-          value={username}
-          onChangeText={(text) => this.setState({ username: text })}
-        />
-        {/* Password Input */}
-        <TextInput
-          style={styles.input}
-          placeholder="Password"
-          secureTextEntry
-          value={password}
-          onChangeText={(text) => this.setState({ password: text })}
-        />
-        {/* Login Button */}
-        <View style={styles.buttonContainer}>
-          <Button title="Login" onPress={this.handleLogin} />
+    <View style={styles.container}>
+      {/*<TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+        <Icon name="chevron-left" size={24} color="#000" />
+      </TouchableOpacity>*/}
+      <View style={styles.content}>
+        <View style={styles.iconContainer}>
+          <Icon name="shield" size={24} color="#fff" />
+        </View>
+        <Text style={styles.title}>Welcome back.</Text>
+        <View style={styles.form}>
+          <TextInput
+            style={styles.input}
+            placeholder="Username"
+            value={username}
+            onChangeText={setUsername}
+            autoCapitalize="none"
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="Password"
+            value={password}
+            onChangeText={setPassword}
+            secureTextEntry
+          />
+          <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
+            <Text style={styles.loginButtonText}>LOGIN</Text>
+          </TouchableOpacity>
+          <View style={styles.signupContainer}>
+            <Text style={styles.signupText}>Don't have an account? </Text>
+            <TouchableOpacity onPress={() => navigation.navigate('Register')}>
+              <Text style={styles.signupLink}>Sign up</Text>
+            </TouchableOpacity>
+
+            
+          </View>
         </View>
       </View>
     </View>
-  );}}
+  );
+}

@@ -1,75 +1,83 @@
-import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { StyleSheet, Text, View, TextInput, Button, Alert } from "react-native";
-import styles from "../Components/Styles";
-import MapScreen from "../Screens/MapScreen";
-import SettingScreen from "../Screens/SettingScreen";
-import ProfileScreen from "../Screens/ProfileScreen";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
-
-const Tab = createBottomTabNavigator(); // Création d’une instance du Tab.Navigator
+import React from 'react';
+import { View, TouchableOpacity, StyleSheet } from 'react-native';
+import { Home, Bell, Plus, User } from 'lucide-react-native';
+import { useNavigation } from '@react-navigation/native';
 
 const TabNavigator = () => {
+  const navigation = useNavigation();
+
   return (
-    /* Définir les écrans dans le Tab.Navigator */
-    <Tab.Navigator
-      initialRouteName="Profile"
-      screenOptions={{
-        tabBarStyle: styles.tabBarStyle, // Tab Bar Styling
-        tabBarActiveTintColor: "#e91e63", // Active icon color
-        tabBarInactiveTintColor: "#8e8e8e", // Inactive icon color
-        tabBarLabelStyle: styles.tabBarLabelStyle, // Label styling
-        tabBarIconStyle: styles.tabBarIconStyle, // Icon styling
-      }}
-    >
-      {/* Utilisez le Tab.Screen pour chaque onglet que vous souhaitez ajouter. */}
-     {/* prbleme de cycle de affichage dans map */}
-      {/* <Tab.Screen
-        name="Map"
-        component={MapScreen}
-        options={{
-          tabBarIcon: ({ color, size }) => (
-            <MaterialCommunityIcons
-              name="Map" 
-              size={size}
-              color={color}
-            />
-          ),
-          tabBarLabel: "Map",
-        }}
-      /> */}
-
-      <Tab.Screen
-        name="Profile"
-        component={ProfileScreen}
-        options={{
-          tabBarIcon: ({ color, size }) => (
-            <MaterialCommunityIcons
-              name="account" // Icône de profil utilisateur
-              size={size}
-              color={color}
-            />
-          ),
-          tabBarLabel: "Profile",
-          tabBarBadge: 5, // Affiche un badge avec le chiffre 5
-        }}
-      />
-
-      <Tab.Screen
-        name="Settings"
-        component={SettingScreen}
-        options={{
-          tabBarIcon: ({ color, size }) => (
-            <MaterialCommunityIcons
-              name="cog" // Icône pour "Settings"
-              size={size}
-              color={color}
-            />
-          ),
-          tabBarLabel: "Settings",
-        }}
-      />
-    </Tab.Navigator>
+    <View style={styles.container}>
+      <TouchableOpacity 
+        style={styles.tabButton}
+        onPress={() => navigation.navigate('Map')}
+      >
+        <Home width={24} height={24} color="#000" />
+      </TouchableOpacity>
+      <TouchableOpacity 
+        style={styles.tabButton}
+        onPress={() => navigation.navigate('Home')}
+      >
+        <View style={styles.documentIcon}>
+          {/* Document icon */}
+        </View>
+      </TouchableOpacity>
+      <TouchableOpacity 
+        style={styles.plusButton}
+        onPress={() => navigation.navigate('Signal')}
+      >
+        <Plus width={24} height={24} color="#fff" />
+      </TouchableOpacity>
+      <TouchableOpacity 
+        style={styles.tabButton}
+        onPress={() => navigation.navigate('Notifications')}
+      >
+        <Bell width={24} height={24} color="#000" />
+      </TouchableOpacity>
+      <TouchableOpacity 
+        style={styles.tabButton}
+        onPress={() => navigation.navigate('Profile')}
+      >
+        <User width={24} height={24} color="#000" />
+      </TouchableOpacity>
+    </View>
   );
 };
 
+const styles = StyleSheet.create({
+  container: {
+    flexDirection: 'row',
+    height: 60,
+    backgroundColor: '#fff',
+    borderTopWidth: 1,
+    borderTopColor: '#e5e5e5',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+  },
+  tabButton: {
+    padding: 8,
+  },
+  plusButton: {
+    backgroundColor: '#0066FF',
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  documentIcon: {
+    width: 24,
+    height: 24,
+    borderWidth: 2,
+    borderColor: '#000',
+    borderRadius: 2,
+  },
+});
+
 export default TabNavigator;
+

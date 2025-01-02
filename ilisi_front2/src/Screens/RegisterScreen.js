@@ -1,79 +1,107 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, TextInput, Button, Alert } from 'react-native';
-import Header from '../Components/Header';
-import React from "react";
+import React, { useState } from 'react';
+import { View, Text, TextInput, TouchableOpacity, ScrollView, StyleSheet, Alert } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import Icon from 'react-native-vector-icons/Feather';
+import config from '../config'; // Make sure this path is correct
 import styles from '../Components/Styles';
-import config from '../config';
 
-export default class RegisterScreen extends React.Component {
+export default function RegisterScreen() {
+  const navigation = useNavigation();
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [email, setEmail] = useState('');  const [phoneNumber, setPhoneNumber] = useState('');
 
-  constructor(props) {
-    super(props);
-    // Initialisation de l'état local
-    this.state = {
-        username: '',
-        password: '',
-    };
-}
-
-handleRegister = async () => {
-  const { username, password } = this.state;
-
-  if (!username || !password) {
-    Alert.alert('Error', 'Please fill all fields');
-    return;
-  }
-
-  try {
-    //const response = await fetch('http://192.168.0.128:3000/authent/register', {
-      const response = await fetch(config.API_URL+':'+config.port+'/authent/register', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ username, password }),
-    });
-
-    if (response.ok) {
-      Alert.alert('Success', 'User registered successfully');
-      this.props.navigation.navigate('Login');
-    } else {
-      const errorData = await response.json();
-      Alert.alert('Error', errorData.message || 'Failed to register user');
+  const handleRegister = async () => {
+    if (!username || !password || !firstName || !lastName || !email || !phoneNumber) {
+      Alert.alert('Error', 'Please fill all fields');
+      return;
     }
-  } catch (error) {
-    Alert.alert('Error', 'Network error');
-  }
-};
 
+    try {
+      const response = await fetch('${config.API_URL}:${config.port}/authent/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ username, password, firstName, lastName, email, phoneNumber }),
+      });
 
-  render() {
-    const { username, password } = this.state;
-    return (
-      <View style={styles.mainContainer}>
-        {/*header */}
-        <View style={styles.formContainer}>
-          {/* Username Input */}
+      if (response.ok) {
+        Alert.alert('Success', 'User registered successfully');
+        navigation.navigate('Login');
+      } else {
+        const errorData = await response.json();
+        Alert.alert('Error', errorData.message || 'Failed to register user');
+      }
+    } catch (error) {
+      Alert.alert('Error', 'Network error');
+    }
+  };
+
+  return (
+    <ScrollView style={styles.container}>
+      <View style={styles.content}>
+        <View style={styles.iconContainer}>
+          <Icon name="shield" size={24} color="#fff" />
+        </View>
+        <Text style={styles.title}>Create Account</Text>
+        <View style={styles.form}>
+          <TextInput
+            style={styles.input}
+            placeholder="First Name"
+            value={firstName}
+            onChangeText={setFirstName}
+            autoCapitalize="words"
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="Last Name"
+            value={lastName}
+            onChangeText={setLastName}
+            autoCapitalize="words"
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="Email"
+            value={email}
+            onChangeText={setEmail}
+            keyboardType="email-address"
+            autoCapitalize="none"
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="Phone Number"
+            value={phoneNumber}
+            onChangeText={setPhoneNumber}
+            keyboardType="phone-pad"
+          />
           <TextInput
             style={styles.input}
             placeholder="Username"
             value={username}
-            onChangeText={(text) => this.setState({ username: text })}
+            onChangeText={setUsername}
+            autoCapitalize="none"
           />
-          {/* Password Input */}
           <TextInput
             style={styles.input}
             placeholder="Password"
-            secureTextEntry
             value={password}
-            onChangeText={(text) => this.setState({ password: text })}
+            onChangeText={setPassword}
+            secureTextEntry
           />
-          {/* Login Button */}
-          <View style={styles.buttonContainer}>
-            <Button title="Register" onPress={this.handleRegister} />
+          <TouchableOpacity style={styles.signupButton} onPress={handleRegister}>
+            <Text style={styles.signupButtonText}>SIGN UP</Text>
+          </TouchableOpacity>
+          <View style={styles.loginContainer}>
+            <Text style={styles.loginText}>Already have an account? </Text>
+            <TouchableOpacity onPress={() => navigation.navigate('Login')}>
+              <Text style={styles.loginLink}>Login</Text>
+            </TouchableOpacity>
           </View>
         </View>
       </View>
-    );
-    }
-  }
+    </ScrollView>
+  );
+}
