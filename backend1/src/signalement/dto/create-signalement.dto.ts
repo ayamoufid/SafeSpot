@@ -10,13 +10,10 @@ export class CreateSignalementDto {
   description?: string;
 
   @IsNumber()
-  zoneId: number;
+  zoneId?: number;
 
   @IsNumber()
   userId: number;
-
-  @IsOptional()
-  date?: Date;
 
   location: Point;
 }
