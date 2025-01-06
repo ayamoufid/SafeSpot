@@ -2,8 +2,8 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { SignalementController } from './signalement.controller';
 import { SignalementService } from './signalement.service';
-import { Signal } from './signal.entity';
-import { Zone } from './zone.entity';
+import { Signal } from './entities/signal.entity';
+import { Zone } from './entities/zone.entity';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Signal, Zone])],
