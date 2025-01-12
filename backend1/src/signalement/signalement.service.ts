@@ -258,9 +258,9 @@ export class SignalementService {
       .getMany();
   }
 
-  async findSignalsInLast30Minutes(): Promise<Signal[]> {
+  async findSignalsInLast60Minutes(): Promise<Signal[]> {
     const now = new Date();
-    const thirtyMinutesAgo = new Date(now.getTime() - 30 * 60 * 1000);
+    const thirtyMinutesAgo = new Date(now.getTime() - 60 * 60 * 1000);
 
     return this.signalementRepository
       .createQueryBuilder('signal')

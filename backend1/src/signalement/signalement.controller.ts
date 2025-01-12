@@ -12,9 +12,9 @@ export class SignalementController
     return await this.signalementService.findSignalsForToday();
   }
 
-  @Get('last-30-minutes') // non teste
-  async findSignalsInLast30Minutes() {
-    return await this.signalementService.findSignalsInLast30Minutes();
+  @Get('last-1-hour') // non teste
+  async findSignalsInLast60Minutes() {
+    return await this.signalementService.findSignalsInLast60Minutes();
   }
 
   @Post()
