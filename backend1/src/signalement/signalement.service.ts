@@ -9,7 +9,9 @@ import axios from 'axios';
 
 @Injectable()
 export class SignalementService {
-  private readonly ZONE_RADIUS = 1000; // 1000 meters constant radius
+  private readonly ZONE_RADIUS = 1000;
+  private readonly proximity = 2500;
+  private readonly SIGNAL_THRESHOLD = 10;
 
   constructor(
     @InjectRepository(Signal)
@@ -216,6 +218,29 @@ export class SignalementService {
       .getMany();
   }
 
+  async findHighRiskZonesNearUser(
+    threshold: number,
+    userLocation: { type: 'Point'; coordinates: [number, number] },
+  ): Promise<Zone[]> {
+    return await this.zoneRepository
+      .createQueryBuilder('zone')
+      .where('zone.riskLevel = :threshold', { threshold })
+      .andWhere(
+        `ST_DWithin(
+          zone.center,
+          ST_SetSRID(ST_MakePoint(:longitude, :latitude), 4326),
+          :proximity
+        )`,
+        {
+          longitude: userLocation.coordinates[0],
+          latitude: userLocation.coordinates[1],
+          proximity: this.proximity,
+        },
+      )
+      .orderBy('zone.riskLevel', 'DESC')
+      .getMany();
+  }
+
   async countSignalsPerZone(): Promise<{ zoneId: number; signalCount: number }[]> {
     return await this.signalementRepository
       .createQueryBuilder('signal')
@@ -258,7 +283,7 @@ export class SignalementService {
       .getMany();
   }
 
-  async findSignalsInLast60Minutes(): Promise<Signal[]> {
+  /*async findSignalsInLast60Minutes(): Promise<Signal[]> {
     const now = new Date();
     const thirtyMinutesAgo = new Date(now.getTime() - 60 * 60 * 1000);
 
@@ -267,8 +292,59 @@ export class SignalementService {
       .where('signal.date >= :startTime', { startTime: thirtyMinutesAgo })
       .orderBy('signal.date', 'DESC')
       .getMany();
-  }
-  
-  
+  }*/
+
+    async findSignalsInLast60Minutes(): Promise<Signal[]> {
+      const now = new Date(); // Heure actuelle locale
+      const oneHourAgo = new Date(now.getTime() - 60 * 60 * 1000);
+      const oneHourAgoUTC = new Date(
+        oneHourAgo.getUTCFullYear(),
+        oneHourAgo.getUTCMonth(),
+        oneHourAgo.getUTCDate(),
+        oneHourAgo.getUTCHours(),
+        oneHourAgo.getUTCMinutes(),
+        oneHourAgo.getUTCSeconds(),
+      );  
+      return this.signalementRepository
+        .createQueryBuilder('signal')
+        .where('signal.date >= :startTime', { startTime: oneHourAgoUTC })
+        .orderBy('signal.date', 'DESC')
+        .getMany();
+    }
+      
+
+    async findSignalsInLast60MinutesForZone(zoneId: number): Promise<Signal[]> {
+      const now = new Date(); // Heure actuelle locale
+      const oneHourAgo = new Date(now.getTime() - 60 * 60 * 1000);
+    
+      // Convertir l'heure locale en UTC pour la comparaison
+      const oneHourAgoUTC = new Date(
+        oneHourAgo.getUTCFullYear(),
+        oneHourAgo.getUTCMonth(),
+        oneHourAgo.getUTCDate(),
+        oneHourAgo.getUTCHours(),
+        oneHourAgo.getUTCMinutes(),
+        oneHourAgo.getUTCSeconds(),
+      );
+    
+      return this.signalementRepository
+        .createQueryBuilder('signal')
+        .where('signal.date >= :startTime', { startTime: oneHourAgoUTC })
+        .andWhere('signal.zoneId = :zoneId', { zoneId })
+        .orderBy('signal.date', 'DESC')
+        .getMany();
+    }
+    
+    async checkAndIncrementRiskLevel(): Promise<void> {
+      const signalCounts = await this.countSignalsPerZone();
+    
+      for (const { zoneId, signalCount } of signalCounts) {
+        if (signalCount >= this.SIGNAL_THRESHOLD) {
+          await this.incrementRiskLevel(zoneId);
+          console.log(`Risque augmenté pour la zone ${zoneId} (nombre de signaux : ${signalCount})`);
+        }
+      }
+    }
+
   
 }

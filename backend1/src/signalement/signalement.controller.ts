@@ -1,6 +1,8 @@
 import { Controller, Post, Body, Get, Param, Put, Delete, Query } from '@nestjs/common';
 import { SignalementService } from './signalement.service';
 import { CreateSignalementDto } from './dto/create-signalement.dto';
+import { Zone } from './entities/zone.entity';
+import { Signal } from './entities/signal.entity';
 
 @Controller('signalements')
 export class SignalementController 
@@ -15,6 +17,11 @@ export class SignalementController
   @Get('last-1-hour') // non teste
   async findSignalsInLast60Minutes() {
     return await this.signalementService.findSignalsInLast60Minutes();
+  }
+
+  @Get('recent/:zoneId')
+  async getRecentSignalsForZone(@Param('zoneId') zoneId: number,): Promise<Signal[]> {
+    return await this.signalementService.findSignalsInLast60MinutesForZone(zoneId);
   }
 
   @Post()
@@ -62,6 +69,14 @@ export class SignalementController
     return await this.signalementService.findHighRiskZones(threshold);
   }
 
+  @Get('high-risk-nearby/:threshold')
+  async getHighRiskZonesNearby(
+    @Param('threshold') threshold: number, // Seuil de risque
+    @Body('location') location: { type: 'Point'; coordinates: [number, number] }, // Position utilisateur
+  ): Promise<Zone[]> {
+    return this.signalementService.findHighRiskZonesNearUser(threshold, location);
+  }
+
   @Get('zones/signal-count')
   async countSignalsPerZone() {
     return await this.signalementService.countSignalsPerZone();
@@ -71,5 +86,11 @@ export class SignalementController
   async findSignalsByDateRange(@Query('startDate') startDate: string, @Query('endDate') endDate: string) {
     return await this.signalementService.findSignalsByDateRange(startDate, endDate);
   }
+
+  @Post('check-risk-levels')
+  async checkRiskLevels(): Promise<void> {
+    await this.signalementService.checkAndIncrementRiskLevel();
+  }
+  
 
 }
