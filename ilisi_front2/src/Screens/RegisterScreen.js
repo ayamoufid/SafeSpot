@@ -20,7 +20,8 @@ export default function RegisterScreen() {
     }
 
     try {
-      const response = await fetch('${config.API_URL}:${config.port}/authent/register', {
+      const url = `${config.API_URL}:${config.port}/authent/register`
+      const response = await fetch(url, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

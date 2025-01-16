@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "850497340563",
+    "project_id": "safespot-ca47a",
+    "storage_bucket": "safespot-ca47a.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:850497340563:android:7a8754ed31cf18616e3966",
+        "android_client_info": {
+          "package_name": "com.anonymous.ilisi_front2"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDuUC42tySpEMNZPdhcubcF839suoyWSGk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

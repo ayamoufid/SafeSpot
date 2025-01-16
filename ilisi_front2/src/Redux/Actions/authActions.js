@@ -6,24 +6,28 @@ export const LOGIN_REQUEST = 'LOGIN_REQUEST';
 export const LOGIN_SUCCESS = 'LOGIN_SUCCESS';
 export const LOGIN_FAILURE = 'LOGIN_FAILURE';
 
-// Asynchronous login action
 export const login = (username, password) => {
   return async (dispatch) => {
-    dispatch({ type: LOGIN_REQUEST }); // Start the login process
+    dispatch({ type: LOGIN_REQUEST });
 
     const apiUrl = `${config.API_URL}${config.port ? `:${config.port}` : ''}/authent/login`;
 
     try {
       const response = await axios.post(apiUrl, { username, password });
-      // If successful, dispatch the LOGIN_SUCCESS action
       if (response.data && response.data.accessToken) {
-        dispatch({ type: LOGIN_SUCCESS, payload: response.data });
+        // Récupérer l'ID utilisateur
+        const userIdResponse = await axios.get(
+          `${config.API_URL}${config.port ? `:${config.port}` : ''}/authent/get-id?username=${username}`
+        );
+
+        dispatch({
+          type: LOGIN_SUCCESS,
+          payload: { accessToken: response.data.accessToken, userId: userIdResponse.data.id },
+        });
       } else {
-        // If unexpected response, dispatch LOGIN_FAILURE
         dispatch({ type: LOGIN_FAILURE, payload: 'Unexpected response from server' });
       }
     } catch (error) {
-      // Handle errors during login
       dispatch({
         type: LOGIN_FAILURE,
         payload: error.response?.data?.message || 'An error occurred during login',

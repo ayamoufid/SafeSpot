@@ -16,7 +16,7 @@ const TabNavigator = () => {
       </TouchableOpacity>
       <TouchableOpacity 
         style={styles.tabButton}
-        onPress={() => navigation.navigate('Home')}
+        onPress={() => navigation.navigate('ListeSignal')}
       >
         <View style={styles.documentIcon}>
           {/* Document icon */}

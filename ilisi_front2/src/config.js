@@ -1,5 +1,5 @@
 const config={
-    API_URL:'http://192.168.0.104',
+    API_URL:'http://192.168.31.191',
     port:'3000',
 
 };

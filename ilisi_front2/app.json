@@ -19,7 +19,10 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.anonymous.ilisi_front2",
+      "googleServicesFile": "./android/google-services.json"
+
     },
     "web": {
       "favicon": "./assets/favicon.png"

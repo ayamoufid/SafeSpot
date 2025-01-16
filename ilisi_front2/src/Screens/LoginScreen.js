@@ -1,41 +1,56 @@
-import React, { useState,useEffect } from 'react';
-
-
+import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/Feather';
-import config from '../config'; // Make sure this path is correct
+import config from '../config'; // Assurez-vous que ce chemin est correct
 import styles from '../Components/Styles';
 
-import { useDispatch,useSelector } from 'react-redux'; // Importer useDispatch
+import { useDispatch, useSelector } from 'react-redux'; // Importer useDispatch
 import { login } from '../Redux/Actions/authActions'; // Importer l'action login
-
-
 
 export default function LoginScreen() {
   const navigation = useNavigation();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  //////
+
   const dispatch = useDispatch();
   const { isLoading, isLoggedIn, error } = useSelector((state) => state.auth);
+
   useEffect(() => {
-  if (isLoggedIn) {
-  navigation.navigate('Map');
-  }
-  }, [isLoggedIn, navigation]); // Ajoutez la dépendance à 'isLoggedIn'
-  /////
+    if (isLoggedIn) {
+      navigation.navigate('Map');
+    }
+  }, [isLoggedIn, navigation]); // Dépendance à 'isLoggedIn'
 
+  // Fonction pour récupérer l'ID d'un utilisateur par son username
+  const getIdByUsername = async (username) => {
+    try {
+      const url = `${config.API_URL}:${config.port}/authent/get-id?username=${username}`;
+      const response = await fetch(url);
 
+      if (response.ok) {
+        const data = await response.json();
+        return data.id; // Retourne l'ID de l'utilisateur
+      } else {
+        console.error(`Failed to fetch ID for username: ${username}`);
+        return null;
+      }
+    } catch (error) {
+      console.error('Error fetching ID:', error);
+      return null;
+    }
+  };
+
+  // Fonction pour gérer la connexion
   const handleLogin = async () => {
-    
     if (!username || !password) {
-      Alert.alert('Error', 'Please fill all fields');
+      Alert.alert('Error', 'Please enter both username and password');
       return;
     }
-    
+
     try {
-      const response = await fetch('http://192.168.0.104:3000/authent/login', {
+      const url = `${config.API_URL}:${config.port}/authent/login`;
+      const response = await fetch(url, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -44,8 +59,16 @@ export default function LoginScreen() {
       });
 
       if (response.ok) {
-        //dispatch(login()); // Déclencher l'action login dans Redux
         dispatch(login(username, password));
+
+        // Récupérer l'ID et l'afficher dans le terminal
+        const userId = await getIdByUsername(username);
+        if (userId) {
+          // console.log(`User ID for ${username}:`, userId);
+        } else {
+          console.log(`Unable to fetch ID for username: ${username}`);
+        }
+
         Alert.alert('Success', 'User logged in successfully');
         navigation.navigate('Map');
       } else {
@@ -59,9 +82,6 @@ export default function LoginScreen() {
 
   return (
     <View style={styles.container}>
-      {/*<TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
-        <Icon name="chevron-left" size={24} color="#000" />
-      </TouchableOpacity>*/}
       <View style={styles.content}>
         <View style={styles.iconContainer}>
           <Icon name="shield" size={24} color="#fff" />
@@ -90,8 +110,6 @@ export default function LoginScreen() {
             <TouchableOpacity onPress={() => navigation.navigate('Register')}>
               <Text style={styles.signupLink}>Sign up</Text>
             </TouchableOpacity>
-
-            
           </View>
         </View>
       </View>
