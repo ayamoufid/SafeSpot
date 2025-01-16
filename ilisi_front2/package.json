@@ -9,10 +9,10 @@
     "web": "expo start --web"
   },
   "dependencies": {
-    "@react-native-firebase/app": "^19.0.0",
-    "@react-native-firebase/auth": "^19.0.0",
-    "@react-native-firebase/firestore": "^19.0.0",
-    "@react-native-firebase/messaging": "^21.6.2",
+    "@react-native-firebase/app": "^21.7.0",
+    "@react-native-firebase/auth": "^21.7.0",
+    "@react-native-firebase/firestore": "^21.7.0",
+    "@react-native-firebase/messaging": "^21.7.0",
     "@react-navigation/bottom-tabs": "^7.2.0",
     "@react-navigation/native": "^7.0.14",
     "@react-navigation/stack": "^7.1.1",
@@ -20,6 +20,7 @@
     "@rnmapbox/maps": "^10.1.33",
     "axios": "^1.7.9",
     "expo": "~52.0.17",
+    "expo-dev-client": "~5.0.9",
     "expo-firebase-core": "^6.0.0",
     "expo-location": "~18.0.4",
     "expo-notifications": "~0.29.11",
