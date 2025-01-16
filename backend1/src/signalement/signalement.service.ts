@@ -218,6 +218,15 @@ export class SignalementService {
       .getMany();
   }
 
+
+  async countSignalsByUser(userId: number): Promise<number> {
+    return await this.signalementRepository
+      .createQueryBuilder('signal')
+      .where('signal.userId = :userId', { userId })
+      .getCount();
+  }
+
+
   async findHighRiskZonesNearUser(
     threshold: number,
     userLocation: { type: 'Point'; coordinates: [number, number] },
@@ -247,6 +256,16 @@ export class SignalementService {
       .select('signal.zoneId', 'zoneId')
       .addSelect('COUNT(signal.id)', 'signalCount')
       .groupBy('signal.zoneId')
+      .getRawMany();
+  }
+
+
+  async countSignalsPerUser(): Promise<{ userId: number; signalCount: number }[]> {
+    return await this.signalementRepository
+      .createQueryBuilder('signal')
+      .select('signal.userId', 'userId')
+      .addSelect('COUNT(signal.id)', 'signalCount')
+      .groupBy('signal.userId')
       .getRawMany();
   }
 

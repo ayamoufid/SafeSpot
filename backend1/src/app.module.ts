@@ -6,7 +6,6 @@ import { AuthentModule } from './authent/authent.module';
 import { UserModule } from './user/user.module';
 import { LocalisationModule } from './localisation/localisation.module';
 import { SignalementModule } from './signalement/signalement.module';
-import { RoadModule } from './road/road.module';
 
 @Module({
   imports: [
@@ -14,9 +13,9 @@ import { RoadModule } from './road/road.module';
       type: 'postgres',
       host: 'localhost', 
       port: 5432,
-      username: 'root',
-      password: 'root',
-      database: 'SafeSpot',
+      username: 'safespot_user',
+      password: 'safespot_password',
+      database: 'safe_spot',
       synchronize: true,
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
     }),
@@ -24,7 +23,6 @@ import { RoadModule } from './road/road.module';
     AuthentModule,
     LocalisationModule,
     SignalementModule,
-    RoadModule,
   ],
 
   controllers: [AppController],

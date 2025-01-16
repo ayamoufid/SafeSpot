@@ -1,0 +1,54 @@
+version: '3.8'
+
+services:
+  safespot_db:
+    image: postgis/postgis:15-3.3
+    container_name: safespot
+    environment:
+      POSTGRES_DB: safe_spot
+      POSTGRES_USER: safespot_user
+      POSTGRES_PASSWORD: safespot_password
+    ports:
+      - "5433:5432"
+    volumes:
+      - safespot_data:/var/lib/postgresql/data
+      - ./osm_data:/osm_data
+    command: 
+      - "postgres"
+      - "-c"
+      - "max_connections=100"
+      - "-c"
+      - "shared_buffers=256MB"
+    networks:
+      - safespot_network
+    restart: unless-stopped
+    # Ajouter osm2pgrouting
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: safespot_pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: "admin@safespot.com"
+      PGADMIN_DEFAULT_PASSWORD: "admin123"
+      PGADMIN_CONFIG_SERVER_MODE: "False"
+    ports:
+      - "5050:80"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    networks:
+      - safespot_network
+    restart: unless-stopped
+    depends_on:
+      - safespot_db
+
+networks:
+  safespot_network:
+    driver: bridge
+
+volumes:
+  safespot_data:
+  pgadmin_data:
+  osm_data:

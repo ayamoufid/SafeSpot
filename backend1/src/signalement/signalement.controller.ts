@@ -14,7 +14,7 @@ export class SignalementController
     return await this.signalementService.findSignalsForToday();
   }
 
-  @Get('last-1-hour') // non teste
+  @Get('last-1-hour')
   async findSignalsInLast60Minutes() {
     return await this.signalementService.findSignalsInLast60Minutes();
   }
@@ -80,6 +80,16 @@ export class SignalementController
   @Get('zones/signal-count')
   async countSignalsPerZone() {
     return await this.signalementService.countSignalsPerZone();
+  }
+
+  @Get('users/signal-count')
+  async countSignalsPerUser() {
+    return await this.signalementService.countSignalsPerUser();
+  }
+
+  @Get('users/signal-count/:userId')
+  async countSignalsByUser(@Param('userId') userId: number) {
+    return await this.signalementService.countSignalsByUser(userId);
   }
 
   @Get('date-range') //pas encore traite
