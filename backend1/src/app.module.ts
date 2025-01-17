@@ -6,6 +6,7 @@ import { AuthentModule } from './authent/authent.module';
 import { UserModule } from './user/user.module';
 import { LocalisationModule } from './localisation/localisation.module';
 import { SignalementModule } from './signalement/signalement.module';
+import { RoutingModule } from './routing/routing.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { SignalementModule } from './signalement/signalement.module';
     AuthentModule,
     LocalisationModule,
     SignalementModule,
+    RoutingModule,
   ],
 
   controllers: [AppController],
