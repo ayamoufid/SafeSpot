@@ -61,34 +61,45 @@ export class SignalementService {
           LIMIT 1
         )
         SELECT 
-          ST_X(
-            ST_SetSRID(
-              ST_Project(
-                user_point.geom::geography,
-                GREATEST(nearest_zone.dist, 2000),  -- Au moins 2000m de distance
-                DEGREES(ST_Azimuth(
-                  nearest_zone.zone_center,
-                  user_point.geom
-                ))
-              )::geometry,
-              4326
+          CASE 
+            WHEN (SELECT COUNT(*) FROM zone) = 0 THEN $1
+            ELSE ST_X(
+              ST_SetSRID(
+                ST_Project(
+                  user_point.geom::geography,
+                  GREATEST(COALESCE(nearest_zone.dist, 2000), 2000),
+                  DEGREES(
+                    COALESCE(
+                      ST_Azimuth(nearest_zone.zone_center, user_point.geom),
+                      0
+                    )
+                  )
+                )::geometry,
+                4326
+              )
             )
-          ) as longitude,
-          ST_Y(
-            ST_SetSRID(
-              ST_Project(
-                user_point.geom::geography,
-                GREATEST(nearest_zone.dist, 2000),  -- Au moins 2000m de distance
-                DEGREES(ST_Azimuth(
-                  nearest_zone.zone_center,
-                  user_point.geom
-                ))
-              )::geometry,
-              4326
+          END as longitude,
+          CASE 
+            WHEN (SELECT COUNT(*) FROM zone) = 0 THEN $2
+            ELSE ST_Y(
+              ST_SetSRID(
+                ST_Project(
+                  user_point.geom::geography,
+                  GREATEST(COALESCE(nearest_zone.dist, 2000), 2000),
+                  DEGREES(
+                    COALESCE(
+                      ST_Azimuth(nearest_zone.zone_center, user_point.geom),
+                      0
+                    )
+                  )
+                )::geometry,
+                4326
+              )
             )
-          ) as latitude
-        FROM user_point, nearest_zone;
-      `, [
+          END as latitude
+        FROM user_point
+        LEFT JOIN nearest_zone ON true;
+      `,[
         createSignalementDto.location.coordinates[0],
         createSignalementDto.location.coordinates[1]
       ]);

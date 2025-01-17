@@ -60,4 +60,21 @@ export class UserService
   {
     return this.userRepository.findOne({ where: { id } });
   }
+
+  async findIdByUsername(username: string): Promise<number | null> {
+    const user = await this.userRepository.findOne({
+      where: { username },
+      select: ['id'], // On ne récupère que l'ID pour plus d'efficacité
+    });
+    return user ? user.id : null;
+  }
+
+   // Méthode pour récupérer toutes les informations d'un utilisateur à partir de l'ID
+   async findUserInfoById(id: number): Promise<Partial<User> | null> {
+    const user = await this.userRepository.findOne({
+      where: { id },
+      select: ['id', 'username', 'password', 'nom', 'prenom', 'email', 'numeroTelephone'],
+    });
+    return user || null; // Si l'utilisateur existe, on retourne ses informations
+  }
 }

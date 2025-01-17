@@ -12,7 +12,7 @@ import { SignalementModule } from './signalement/signalement.module';
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: 'localhost', 
-      port: 5432,
+      port: 5433,
       username: 'safespot_user',
       password: 'safespot_password',
       database: 'safe_spot',
