@@ -25,11 +25,11 @@ export class RoutingService {
         ORDER BY the_geom <-> ST_SetSRID(ST_MakePoint($3, $4), 4326) LIMIT 1
       )
       SELECT 
-        path_seq,
-        node,
-        edge,
-        cost,
-        agg_cost,
+        di.path_seq,
+        di.node,
+        di.edge,
+        di.cost AS path_cost,
+        di.agg_cost,
         ST_AsGeoJSON(w.the_geom) as geometry,
         ST_Length(w.the_geom::geography) as segment_length,
         w.name as street_name,
@@ -38,7 +38,7 @@ export class RoutingService {
           ELSE 0 
         END as risk_level
       FROM pgr_dijkstra(
-        'SELECT gid, source, target, ' || $5 || ' as cost, 
+        'SELECT gid as id, source, target, ' || $5 || ' as cost, 
          CASE 
            WHEN one_way = -1 THEN ' || $5 || '
            WHEN one_way = 1 THEN -1 
@@ -51,7 +51,7 @@ export class RoutingService {
       ) AS di
       JOIN ways w ON w.gid = di.edge
       LEFT JOIN zone z ON ST_Intersects(w.the_geom, z.center::geometry)
-      ORDER BY path_seq;
+      ORDER BY di.path_seq;
     `;
 
     const result = await this.dataSource.query(query, [
@@ -74,7 +74,7 @@ export class RoutingService {
           geometry: JSON.parse(row.geometry),
           properties: {
             pathSequence: row.path_seq,
-            cost: row.cost,
+            cost: row.path_cost,
             aggregateCost: row.agg_cost,
             streetName: row.street_name,
             riskLevel: row.risk_level,
@@ -89,5 +89,5 @@ export class RoutingService {
         routeType: mode
       }
     };
-  }
+}
 }
