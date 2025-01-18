@@ -11,4 +11,9 @@ export class RoutingController {
   async calculateRoute(@Body() routeRequest: RouteRequestDto) {
     return this.routingService.findRoute(routeRequest);
   }
+
+  @Post('safestroute')
+  async calculateSafestRoute(@Body() routeRequest: RouteRequestDto) {
+    return this.routingService.findSafestRoute(routeRequest);
+  }
 }
