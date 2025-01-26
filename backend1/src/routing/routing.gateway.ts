@@ -1,4 +1,4 @@
-import { WebSocketGateway, WebSocketServer, SubscribeMessage, MessageBody } from '@nestjs/websockets';
+import { WebSocketGateway, WebSocketServer, SubscribeMessage, MessageBody, OnGatewayConnection, OnGatewayDisconnect } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 import { RoutingService } from './routing.service';
 
@@ -7,11 +7,19 @@ import { RoutingService } from './routing.service';
     origin: '*',
   }
 })
-export class RoutingGateway {
+export class RoutingGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer()
   server: Server;
 
   constructor(private readonly routingService: RoutingService) {}
+
+  handleConnection(client: Socket) {
+    console.log('Client connected:', client.id);
+  }
+
+  handleDisconnect(client: Socket) {
+    console.log('Client disconnected:', client.id);
+  }
 
   @SubscribeMessage('trackRoute')
   async handleRouteTracking(@MessageBody() routeRequest: {
@@ -21,21 +29,11 @@ export class RoutingGateway {
     endLon: number,
     mode?: 'normal' | 'safe'
   }) {
-    // Initial route calculation
-    const initialRoute = await this.routingService.findRoute({
-      startLat: routeRequest.startLat,
-      startLon: routeRequest.startLon,
-      endLat: routeRequest.endLat,
-      endLon: routeRequest.endLon,
-      mode: routeRequest.mode || 'normal'
-    });
+    console.log('Tracking route request received:', routeRequest);
 
-    // Send initial route
-    this.server.emit('initialRoute', initialRoute);
-
-    // Method to check route safety periodically
-    const checkRouteSafety = async () => {
-      const updatedRoute = await this.routingService.findRoute({
+    try {
+      // Initial route calculation
+      const initialRoute = await this.routingService.findRoute({
         startLat: routeRequest.startLat,
         startLon: routeRequest.startLon,
         endLat: routeRequest.endLat,
@@ -43,26 +41,54 @@ export class RoutingGateway {
         mode: routeRequest.mode || 'normal'
       });
 
-      // Compare risk levels of current route segments
-      const hasRiskChanged = updatedRoute.route.features.some(
-        segment => segment.properties.riskLevel > 0
-      );
+      console.log('Initial route calculated', JSON.stringify(initialRoute));
 
-      if (hasRiskChanged) {
-        // Emit new route if risk levels have changed
-        this.server.emit('routeUpdated', updatedRoute);
-      }
-    };
+      // Send initial route
+      this.server.emit('initialRoute', initialRoute);
 
-    // Start periodic safety checks (every 30 seconds)
-    const safetyCheckInterval = setInterval(checkRouteSafety, 30000);
+      // Method to check route safety periodically
+      const checkRouteSafety = async () => {
+        try {
+          const updatedRoute = await this.routingService.findSafestRoute({
+            startLat: routeRequest.startLat,
+            startLon: routeRequest.startLon,
+            endLat: routeRequest.endLat,
+            endLon: routeRequest.endLon,
+            mode: routeRequest.mode || 'normal'
+          });
 
-    // Handle client disconnection
-    return {
-      unsubscribe: () => {
-        clearInterval(safetyCheckInterval);
-      }
-    };
+          console.log('Route safety check performed');
+
+          // Compare risk levels of current route segments
+          const hasRiskChanged = updatedRoute.route.features.some(
+            segment => segment.properties.riskLevel > 0
+          );
+
+          console.log('Risk changed:', hasRiskChanged);
+
+          if (hasRiskChanged) {
+            // Emit new route if risk levels have changed
+            this.server.emit('routeUpdated', updatedRoute);
+            console.log('Route updated event emitted');
+          }
+        } catch (error) {
+          console.error('Error in safety check:', error);
+        }
+      };
+
+      // Start periodic safety checks (e.g., every 30 seconds)
+      const safetyCheckInterval = setInterval(checkRouteSafety, 30000);
+
+      // Return unsubscribe method
+      return {
+        unsubscribe: () => {
+          clearInterval(safetyCheckInterval);
+        }
+      };
+    } catch (error) {
+      console.error('Error in route tracking:', error);
+      throw error;
+    }
   }
 
   @SubscribeMessage('stopTracking')
