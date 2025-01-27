@@ -24,6 +24,31 @@ export class SignalementController
     return await this.signalementService.findSignalsInLast60MinutesForZone(zoneId);
   }
 
+
+  @Get('recent')
+  async getRecentSignalsNearby(
+    @Query('lat') lat: number,
+    @Query('lon') lon: number,
+    @Query('type') type?: string,
+  ): Promise<Signal[]> {
+    return await this.signalementService.findSignalsInLast60MinutesNearby(lat, lon, type);
+  }
+
+  @Get('count')
+  async countRecentSignalsNearby(
+    @Query('lat') lat: number,
+    @Query('lon') lon: number,
+    @Query('type') type?: string,
+  ): Promise<{ signalCount: number; type?: string }> {
+    return await this.signalementService.countRecentSignalsNearby(lat, lon, type);
+  }
+
+  @Get('types')
+  async getSignalTypes() {
+    return this.signalementService.getSignalTypes();
+  }
+
+
   @Post()
   async createSignalement(@Body() createSignalementDto: CreateSignalementDto) {
     return await this.signalementService.create(createSignalementDto);
@@ -69,6 +94,7 @@ export class SignalementController
     return await this.signalementService.findHighRiskZones(threshold);
   }
 
+ 
   /*@Get('high-risk-nearby/:threshold')
   async getHighRiskZonesNearby(
     @Param('threshold') threshold: number, // Seuil de risque
@@ -96,6 +122,7 @@ export class SignalementController
     return await this.signalementService.countSignalsPerZone();
   }
 
+
   @Get('users/signal-count')
   async countSignalsPerUser() {
     return await this.signalementService.countSignalsPerUser();
@@ -115,6 +142,9 @@ export class SignalementController
   async checkRiskLevels(): Promise<void> {
     await this.signalementService.checkAndIncrementRiskLevel();
   }
+
+
+
   
 
 }

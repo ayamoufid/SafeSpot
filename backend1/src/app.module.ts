@@ -7,6 +7,7 @@ import { UserModule } from './user/user.module';
 import { LocalisationModule } from './localisation/localisation.module';
 import { SignalementModule } from './signalement/signalement.module';
 import { RoutingModule } from './routing/routing.module';
+import { SafespotModule } from './safespot/safespot.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { RoutingModule } from './routing/routing.module';
     LocalisationModule,
     SignalementModule,
     RoutingModule,
+    SafespotModule,
   ],
 
   controllers: [AppController],

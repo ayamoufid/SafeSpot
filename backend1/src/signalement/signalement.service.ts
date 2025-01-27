@@ -271,6 +271,18 @@ export class SignalementService {
   }
 
 
+  
+
+
+  async getSignalTypes(): Promise<string[]> {
+    const result = await this.signalementRepository
+      .createQueryBuilder('signal')
+      .select('DISTINCT signal.type', 'type')
+      .getRawMany();
+
+    return result.map(row => row.type);
+  }
+
   async countSignalsPerUser(): Promise<{ userId: number; signalCount: number }[]> {
     return await this.signalementRepository
       .createQueryBuilder('signal')
@@ -364,6 +376,9 @@ export class SignalementService {
         .orderBy('signal.date', 'DESC')
         .getMany();
     }
+
+
+    
     
     async checkAndIncrementRiskLevel(): Promise<void> {
       const signalCounts = await this.countSignalsPerZone();
@@ -376,5 +391,92 @@ export class SignalementService {
       }
     }
 
+
+    async findSignalsInLast60MinutesNearby(
+      lat: number,
+      lon: number,
+      type?: string,
+    ): Promise<Signal[]> {
+      const now = new Date();
+      const oneHourAgo = new Date(now.getTime() - 60 * 60 * 1000);
+  
+      const oneHourAgoUTC = new Date(
+        oneHourAgo.getUTCFullYear(),
+        oneHourAgo.getUTCMonth(),
+        oneHourAgo.getUTCDate(),
+        oneHourAgo.getUTCHours(),
+        oneHourAgo.getUTCMinutes(),
+        oneHourAgo.getUTCSeconds(),
+      );
+  
+      const queryBuilder = this.signalementRepository
+        .createQueryBuilder('signal')
+        .where('signal.date >= :startTime', { startTime: oneHourAgoUTC })
+        .andWhere(
+          `ST_DWithin(
+            signal.location::geography,
+            ST_SetSRID(ST_MakePoint(:lon, :lat), 4326)::geography,
+            :radius
+          )`,
+          {
+            lat,
+            lon,
+            radius: this.proximity,
+          },
+        )
+        .orderBy('signal.date', 'DESC');
+  
+      if (type) {
+        queryBuilder.andWhere('signal.type = :type', { type });
+      }
+  
+      return await queryBuilder.getMany();
+    }
+  
+    async countRecentSignalsNearby(
+      lat: number,
+      lon: number,
+      type?: string,
+    ): Promise<{ signalCount: number; type?: string }> {
+      const now = new Date();
+      const oneHourAgo = new Date(now.getTime() - 60 * 60 * 1000);
+  
+      const oneHourAgoUTC = new Date(
+        oneHourAgo.getUTCFullYear(),
+        oneHourAgo.getUTCMonth(),
+        oneHourAgo.getUTCDate(),
+        oneHourAgo.getUTCHours(),
+        oneHourAgo.getUTCMinutes(),
+        oneHourAgo.getUTCSeconds(),
+      );
+  
+      const queryBuilder = this.signalementRepository
+        .createQueryBuilder('signal')
+        .select('COUNT(signal.id)', 'signalCount')
+        .where('signal.date >= :startTime', { startTime: oneHourAgoUTC })
+        .andWhere(
+          `ST_DWithin(
+            signal.location::geography,
+            ST_SetSRID(ST_MakePoint(:lon, :lat), 4326)::geography,
+            :radius
+          )`,
+          {
+            lat,
+            lon,
+            radius: this.proximity,
+          },
+        );
+  
+      if (type) {
+        queryBuilder.andWhere('signal.type = :type', { type });
+      }
+  
+      const result = await queryBuilder.getRawOne();
+  
+      return {
+        signalCount: Number(result?.signalCount) || 0,
+        ...(type && { type }),
+      };
+    }
   
 }
