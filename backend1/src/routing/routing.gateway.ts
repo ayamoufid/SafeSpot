@@ -76,7 +76,7 @@ export class RoutingGateway implements OnGatewayConnection, OnGatewayDisconnect 
         }
       };
 
-      // Start periodic safety checks (e.g., every 30 seconds)
+      // Start periodic safety checks
       const safetyCheckInterval = setInterval(checkRouteSafety, 30000);
 
       // Return unsubscribe method

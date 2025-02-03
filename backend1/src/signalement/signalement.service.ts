@@ -1,7 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Point } from 'geojson';
 import { Signal } from './entities/signal.entity';
 import { Zone } from './entities/zone.entity';
 import { CreateSignalementDto } from './dto/create-signalement.dto';
@@ -271,9 +270,6 @@ export class SignalementService {
   }
 
 
-  
-
-
   async getSignalTypes(): Promise<string[]> {
     const result = await this.signalementRepository
       .createQueryBuilder('signal')
@@ -324,17 +320,6 @@ export class SignalementService {
       .orderBy('signal.date', 'DESC')
       .getMany();
   }
-
-  /*async findSignalsInLast60Minutes(): Promise<Signal[]> {
-    const now = new Date();
-    const thirtyMinutesAgo = new Date(now.getTime() - 60 * 60 * 1000);
-
-    return this.signalementRepository
-      .createQueryBuilder('signal')
-      .where('signal.date >= :startTime', { startTime: thirtyMinutesAgo })
-      .orderBy('signal.date', 'DESC')
-      .getMany();
-  }*/
 
     async findSignalsInLast60Minutes(): Promise<Signal[]> {
       const now = new Date(); // Heure actuelle locale

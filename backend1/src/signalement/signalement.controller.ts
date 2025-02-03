@@ -94,14 +94,6 @@ export class SignalementController
     return await this.signalementService.findHighRiskZones(threshold);
   }
 
- 
-  /*@Get('high-risk-nearby/:threshold')
-  async getHighRiskZonesNearby(
-    @Param('threshold') threshold: number, // Seuil de risque
-    @Body('location') location: { type: 'Point'; coordinates: [number, number] }, // Position utilisateur
-  ): Promise<Zone[]> {
-    return this.signalementService.findHighRiskZonesNearUser(threshold, location);
-  }*/
 
     @Get('high-risk-nearby/:threshold/:latitude/:longitude')
     async getHighRiskZonesNearby(
@@ -131,11 +123,6 @@ export class SignalementController
   @Get('users/signal-count/:userId')
   async countSignalsByUser(@Param('userId') userId: number) {
     return await this.signalementService.countSignalsByUser(userId);
-  }
-
-  @Get('date-range') //pas encore traite
-  async findSignalsByDateRange(@Query('startDate') startDate: string, @Query('endDate') endDate: string) {
-    return await this.signalementService.findSignalsByDateRange(startDate, endDate);
   }
 
   @Post('check-risk-levels')

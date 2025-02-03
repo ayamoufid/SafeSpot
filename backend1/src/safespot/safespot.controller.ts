@@ -10,7 +10,6 @@ export class SafespotController {
     @Query('lat') lat: number,
     @Query('lon') lon: number,
   ) {
-    // Appel au service pour récupérer et enregistrer les SafeSpots
     const safeSpots = await this.safeSpotService.fetchSafeSpots(lat, lon);
     await this.safeSpotService.saveSafeSpots(safeSpots);
     return { message: 'SafeSpots fetched and saved successfully', data: safeSpots };

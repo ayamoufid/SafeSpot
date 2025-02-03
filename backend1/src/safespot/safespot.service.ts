@@ -15,19 +15,19 @@ export class SafespotService {
     private readonly httpService: HttpService,
   ) {}
 
-  // Méthode pour récupérer les SafeSpots depuis Overpass API
+  // SafeSpots depuis Overpass API
   async fetchSafeSpots(lat: number, lon: number): Promise<any[]> {
     // Types d’établissements à rechercher
     const amenityTypes = [
-      'police', // Postes de police
-      'hospital', // Hôpitaux
-      'train_station', // Gares ferroviaires
-      'bus_station', // Gares routières
-      'shopping_mall', // Centres commerciaux
-      'fire_station', // Casernes de pompiers
-      'university', // Universités
-      'school', // Écoles
-      'townhall', // Mairies
+      'police',
+      'hospital',
+      'train_station',
+      'bus_station',
+      'shopping_mall',
+      'fire_station', 
+      'university',
+      'school',
+      'townhall',
     ];
 
     // Construction de la requête Overpass

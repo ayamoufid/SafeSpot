@@ -3,7 +3,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { AuthentController } from './authent.controller';
 import { AuthentService } from './authent.service';
 import { JwtStrategy } from './jwt.strategy';
-import { UserModule } from '../user/user.module'; // Importer UserModule
+import { UserModule } from '../user/user.module';
 
 @Module({
   imports: [
@@ -11,7 +11,7 @@ import { UserModule } from '../user/user.module'; // Importer UserModule
       secret: 'eduhhehifiilso',
       signOptions: { expiresIn: '50m' },
     }),
-    UserModule, // Assurez-vous que UserModule est importé ici
+    UserModule,
   ],
   controllers: [AuthentController],
   providers: [AuthentService, JwtStrategy],
