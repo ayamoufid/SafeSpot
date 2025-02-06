@@ -129,6 +129,8 @@ export class SignalementService {
       zoneId
     });
 
+    this.checkAndIncrementRiskLevel();
+
     return await this.signalementRepository.save(signalement);
   }
 
@@ -297,10 +299,22 @@ export class SignalementService {
   }
 
   async incrementRiskLevel(zoneId: number): Promise<void> {
+    // D'abord, récupérer le niveau de risque actuel
+    const currentZone = await this.zoneRepository
+      .createQueryBuilder('zone')
+      .select('zone.riskLevel')
+      .where('zone.id = :zoneId', { zoneId })
+      .getOne();
+  
+    if (currentZone && currentZone.riskLevel >= 2) {
+      return;
+    }
     await this.zoneRepository
       .createQueryBuilder()
       .update(Zone)
-      .set({ riskLevel: () => 'riskLevel + 1' })
+      .set({
+        riskLevel: () => `LEAST(riskLevel + 1, 2)`
+      })
       .where('id = :zoneId', { zoneId })
       .execute();
   }
